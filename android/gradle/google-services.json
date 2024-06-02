@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "829120397902",
+    "project_id": "donor-ffb0b",
+    "storage_bucket": "donor-ffb0b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:829120397902:android:b17d976cbc41307f72391f",
+        "android_client_info": {
+          "package_name": "com.sidorah"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQznqUeuJksyd1V_994inlmm5BqfZA6SI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
