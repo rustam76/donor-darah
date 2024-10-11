@@ -24,21 +24,21 @@ Sebelum memulai, pastikan Anda sudah menginstal hal-hal berikut:
    Clone repository ini ke komputer lokal Anda dengan perintah berikut:
 
    ```bash
-   git clone https://github.com/username/donor_darah.git
+   git clone https://github.com/rustam76/donor-darah.git
 
 2. **Masuk Folder**
  
- ```bash
+
     cd donor_darah
 
 3. **Jalankan**
     
-    ```bash
+
     flutter pub get
 
 4. **Selanjutnya **
     
-    ```bash
+ 
     flutter run
 
 
