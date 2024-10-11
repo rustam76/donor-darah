@@ -1,31 +1,44 @@
-# donor_darah
+# Donor Darah
 
-A new Flutter project.
+![Project Image](assets/screen.png) 
+
+Sebuah proyek Flutter untuk membantu pengguna dalam mencari dan mendonasikan darah.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Ini adalah titik awal untuk sebuah aplikasi Flutter. Berikut adalah langkah-langkah untuk memulai proyek ini:
 
-A few resources to get you started if this is your first Flutter project:
+### Prerequisites
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Sebelum memulai, pastikan Anda sudah menginstal hal-hal berikut:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- [Flutter SDK](https://flutter.dev/docs/get-started/install) versi terbaru
+- [Android Studio](https://developer.android.com/studio) atau [VS Code](https://code.visualstudio.com/) sebagai editor kode
+- [Git](https://git-scm.com/) untuk cloning repository
+- Emulator Android/iOS atau perangkat fisik yang terhubung
 
+### Cara Menjalankan Aplikasi
 
+1. **Cloning Repository**
+   
+   Clone repository ini ke komputer lokal Anda dengan perintah berikut:
 
-1. privasi desain sistem
-2. tampilan login pendonor 
-3. akun pendonor sama 
-4. help
-5. siddak
+   ```bash
+   git clone https://github.com/username/donor_darah.git
 
+2. **Masuk Folder**
+ 
+ ```bash
+    cd donor_darah
 
-fadillah
-1. melamar krja dpt token buat di bawa 
-2. pencari kerja 
-3. 
+3. **Jalankan**
+    
+    ```bash
+    flutter pub get
+
+4. **Selanjutnya **
+    
+    ```bash
+    flutter run
+
 
