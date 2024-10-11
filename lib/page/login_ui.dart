@@ -1,6 +1,7 @@
-import 'package:donor_darah/controller/login_controller.dart';
+import 'package:donor_darah/controller/auth_controller.dart';
+import 'package:donor_darah/main.dart';
+import 'package:donor_darah/page/help_ui.dart';
 import 'package:donor_darah/page/register_login_ui.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginUi extends StatefulWidget {
@@ -13,8 +14,9 @@ class LoginUi extends StatefulWidget {
 class _LoginUiState extends State<LoginUi> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final LoginController loginController = LoginController();
-  final email = TextEditingController(text: "majid@gmail.com");
-  final password = TextEditingController(text: "12345678");
+  final email = TextEditingController();
+  final password = TextEditingController();
+
   bool isLoading = false;
 
   Future<void> _login() async {
@@ -23,25 +25,32 @@ class _LoginUiState extends State<LoginUi> {
         isLoading = true;
       });
       try {
-       User? user = await loginController.login(email.text, password.text);
+        String? user = await loginController.login(email.text, password.text);
 
-       setState(() {
+        setState(() {
           isLoading = false;
         });
-       if (user != null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Login successful!')));
-         
-       }else{
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to login: Unknown error')));
-       }
+        if (user != null) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Login successful!')));
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    MyApp()), // Replace MyApp() with your main page widget
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to login: Unknown error')));
+        }
       } catch (e) {
         setState(() {
           isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to login: ${e.toString()}')));
-      } 
+      }
     }
   }
 
@@ -55,10 +64,11 @@ class _LoginUiState extends State<LoginUi> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 200),
+              SizedBox(height: 100),
               Text(
-                "Welcome to AK47",
-                style: TextStyle(fontSize: 20),
+                "Welcome to SIDORAH",
+                style: TextStyle(fontSize: 20
+                ),
               ),
               SizedBox(height: 20),
               Form(
@@ -86,6 +96,7 @@ class _LoginUiState extends State<LoginUi> {
                     SizedBox(height: 20),
                     TextFormField(
                       obscureText: true,
+                      
                       controller: password,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -99,17 +110,17 @@ class _LoginUiState extends State<LoginUi> {
                       },
                     ),
                     SizedBox(height: 20),
-
                     SizedBox(
                       width: double.infinity,
                       child: TextButton(
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            fixedSize:
+                                Size(MediaQuery.of(context).size.width, 60)),
                         onPressed: () {
                           _login();
                         },
@@ -118,7 +129,28 @@ class _LoginUiState extends State<LoginUi> {
                             : Text("Login"),
                       ),
                     ),
-                    // SizedBox(height: 5),
+                    SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side: BorderSide(color: Colors.red),
+                            ),
+                            fixedSize:
+                                Size(MediaQuery.of(context).size.width, 60)),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => HelpPage(),
+                            ),
+                          );
+                        },
+                        child: const Text("Help"),
+                      ),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

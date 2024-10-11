@@ -1,7 +1,7 @@
-import 'package:donor_darah/controller/login_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:donor_darah/controller/auth_controller.dart';
 import 'package:donor_darah/page/login_ui.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 class RegisterLoginUI extends StatefulWidget {
   const RegisterLoginUI({super.key});
@@ -16,7 +16,6 @@ class _RegisterLoginUIState extends State<RegisterLoginUI> {
   final name = TextEditingController();
   final email = TextEditingController();
   final password = TextEditingController();
-
   bool isLoading = false;
 
   @override
@@ -33,12 +32,11 @@ class _RegisterLoginUIState extends State<RegisterLoginUI> {
         isLoading = true;
       });
       try {
-        User? user = await registerController.register(
-            name.text, email.text, password.text, "relawan");
+        User? user = await registerController.register(name.text, email.text,
+            password.text);
         setState(() {
           isLoading = false;
         });
-
         if (user != null) {
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('User registered successfully!')));
@@ -56,10 +54,14 @@ class _RegisterLoginUIState extends State<RegisterLoginUI> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Register'),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.red,
+      ),
       body: SingleChildScrollView(
           child: Container(
         alignment: Alignment.center,
-        // margin: EdgeInsets.symmetric(vertical: 20),
         padding: EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
@@ -67,11 +69,12 @@ class _RegisterLoginUIState extends State<RegisterLoginUI> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 100),
-                Text(
-                  "DAFTAR\nAplikasi SIDAKK",
+                const Text(
+                  "SIDORAH",
                   textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
+
                 SizedBox(height: 30),
                 TextFormField(
                   controller: name,
@@ -121,6 +124,7 @@ class _RegisterLoginUIState extends State<RegisterLoginUI> {
                   },
                 ),
                 SizedBox(height: 10),
+
                 TextButton(
                     style: TextButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -132,7 +136,8 @@ class _RegisterLoginUIState extends State<RegisterLoginUI> {
                     onPressed: () {
                       _register();
                     },
-                    child: const Text("Registrasi")),
+                    child:  isLoading
+                            ? CircularProgressIndicator() : Text("Registrasi")),
                 SizedBox(height: 5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

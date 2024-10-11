@@ -1,10 +1,15 @@
 import 'dart:io';
 
+import 'package:donor_darah/controller/auth_controller.dart';
+import 'package:donor_darah/controller/relawan_controller.dart';
+import 'package:donor_darah/page/relawan/profile_ui.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class RegistrasiUi extends StatefulWidget {
-  RegistrasiUi({super.key});
+  final Map<String, dynamic> userRelawan;
+  RegistrasiUi({super.key, required this.userRelawan});
 
   @override
   State<RegistrasiUi> createState() => _RegistrasiUiState();
@@ -12,7 +17,9 @@ class RegistrasiUi extends StatefulWidget {
 
 class _RegistrasiUiState extends State<RegistrasiUi> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  File? _file;
+  RelawanController relawanController = RelawanController();
+  LoginController loginController = LoginController();
+
   String? _selectedGender;
   String? _selectedBlood;
   final name = TextEditingController();
@@ -22,19 +29,159 @@ class _RegistrasiUiState extends State<RegistrasiUi> {
   final fileKTP = TextEditingController();
   final fileDarah = TextEditingController();
 
-  final picker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
+  File? _file;
+  File? _fileDarah;
+  String? imageKtp;
+  String? imageDarah;
 
-  Future<void> chooseFile() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  Future<void> openCamera() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.camera,
+    );
 
-    setState(() {
-      if (pickedFile != null) {
+    if (pickedFile != null) {
+      setState(() {
         _file = File(pickedFile.path);
-        print('File selected.');
-      } else {
-        print('No file selected.');
+      });
+    }
+  }
+
+
+ Future<void> openGallery() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _file = File(pickedFile.path);
+      });
+    }
+  }
+
+  
+  Future<void> chooseFile(String imageType) async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      switch (imageType) {
+        case "ktp":
+          _file = File(pickedFile.path);
+          imageKtp = pickedFile.name;
+          print('KTP image selected. ${imageKtp}');
+          break;
+        case "darah":
+          _fileDarah = File(pickedFile.path);
+          imageDarah = pickedFile.name;
+          print('Blood image selected. ${imageDarah}');
+          break;
       }
+    } else {
+      print('No file selected.');
+    }
+    setState(() {});
+  }
+
+  Future<void> pickImage(String imageType, ImageSource source) async {
+    final XFile? pickedFile = await _picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      setState(() {
+        if (imageType == "ktp") {
+          _file = File(pickedFile.path);
+          imageKtp = pickedFile.name;
+        } else if (imageType == "darah") {
+          _fileDarah = File(pickedFile.path);
+          imageDarah = pickedFile.name;
+        }
+      });
+    }
+  }
+
+ void showImageSourceSelection(BuildContext context, String imageType) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                    leading: Icon(Icons.photo_library),
+                    title: Text('Gallery'),
+                    onTap: () {
+                      pickImage(imageType, ImageSource.gallery);
+                      Navigator.of(context).pop();
+                    }),
+                ListTile(
+                  leading: Icon(Icons.photo_camera),
+                  title: Text('Camera'),
+                  onTap: () {
+                    pickImage(imageType, ImageSource.camera);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+
+
+  Future<String> uploadFile(File file) async {
+    final storage = FirebaseStorage.instance;
+    final referencePath =
+        'uploads/${file.path.split('/').last}'; // Replace with your desired storage path
+    final reference = storage.ref().child(referencePath);
+    final uploadTask = reference.putFile(file);
+
+    // Monitor upload progress (optional)
+    uploadTask.snapshotEvents.listen((event) {
+      final progress = (event.bytesTransferred / event.totalBytes) * 100;
+      print('Upload progress: $progress%');
     });
+
+    // Wait for the upload to complete
+    await uploadTask.whenComplete(() => null);
+
+    // Get the download URL
+    final downloadUrl = await reference.getDownloadURL();
+    print('File uploaded successfully! Download URL: $downloadUrl');
+    return downloadUrl;
+  }
+
+  void registerRelawan() async {
+    if (_formKey.currentState!.validate()) {
+      Map<String, dynamic> data = {
+        "name": name.text,
+        "bloodType": _selectedBlood,
+        "umur": umur.text,
+        "jenis_kelamin": _selectedGender,
+        "isRelawan": true,
+        "status": false
+      };
+      String emailKu = widget.userRelawan["email"];
+
+      if (_file != null) {
+        String ktpUrl = await uploadFile(_file!);
+        data['ktp_file'] = ktpUrl;
+      }
+
+      if (_fileDarah != null) {
+        String darahUrl = await uploadFile(_fileDarah!);
+        data['blood_card_file'] = darahUrl;
+      }
+
+      bool userR = await relawanController.updateUser(emailKu, data);
+
+      if (userR) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => ProfileUi()));
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Gagal register')));
+      }
+    }
   }
 
   @override
@@ -42,9 +189,11 @@ class _RegistrasiUiState extends State<RegistrasiUi> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Registrasi relawan donor danarah",
+          "Registrasi relawan donor darah",
           style: TextStyle(fontSize: 16),
         ),
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
           child: Padding(
@@ -64,15 +213,14 @@ class _RegistrasiUiState extends State<RegistrasiUi> {
                       label: Text("Nama Lengkap"),
                     ),
                     controller: name,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
                   ),
                   SizedBox(height: 10),
-
-                  // TextFormField(
-                  //   decoration: const InputDecoration(
-                  //     border: OutlineInputBorder(),
-                  //     label: Text("Golongan Darah"),
-                  //   ),
-                  // ),
 
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(
@@ -101,10 +249,21 @@ class _RegistrasiUiState extends State<RegistrasiUi> {
                     children: [
                       Expanded(
                         child: TextFormField(
+                          controller: umur,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: "Umur",
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter some text';
+                            } else if (int.tryParse(value) == null) {
+                              return 'Umur harus berupa angka';
+                            } else if (int.tryParse(value)! < 17) {
+                              return 'Umur harus lebih 17 tahun';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       SizedBox(width: 10),
@@ -134,13 +293,8 @@ class _RegistrasiUiState extends State<RegistrasiUi> {
                     ],
                   ),
                   SizedBox(height: 10),
-// _file == null
-                  //     ? Text('No file selected.')
-                  //     : Image.file(_file!),
                   OutlinedButton(
-                      onPressed: () {
-                        chooseFile();
-                      },
+                       onPressed: () => showImageSourceSelection(context, "ktp"),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
@@ -153,13 +307,13 @@ class _RegistrasiUiState extends State<RegistrasiUi> {
                           children: [
                             _file == null
                                 ? Text('Upload KTP')
-                                : Text(_file!.path),
+                                : Text(imageKtp.toString()),
                             Icon(Icons.add_a_photo)
                           ])),
                   SizedBox(height: 10),
 
                   OutlinedButton(
-                      onPressed: () {},
+                       onPressed: () => showImageSourceSelection(context, "darah"),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
@@ -167,14 +321,15 @@ class _RegistrasiUiState extends State<RegistrasiUi> {
                         ),
                         fixedSize: Size(MediaQuery.of(context).size.width, 60),
                       ),
-                      child: const Row(
+                      child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Upload Kartu Darah',
-                            ),
+                            _file == null
+                                ? Text('Upload Kartu Darah')
+                                : Text(imageDarah.toString()),
                             Icon(Icons.add_a_photo)
                           ])),
+
                   SizedBox(height: 10),
 
                   TextButton(
@@ -186,7 +341,9 @@ class _RegistrasiUiState extends State<RegistrasiUi> {
                           ),
                           fixedSize:
                               Size(MediaQuery.of(context).size.width, 60)),
-                      onPressed: () {},
+                      onPressed: () {
+                        registerRelawan();
+                      },
                       child: const Text("Registrasi"))
                 ]),
           ),

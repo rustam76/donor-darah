@@ -1,0 +1,13 @@
+{
+    "uid": "ENh8IPanVsRO337DaJnITOcfDgo2",
+    "umur": 20,
+    "bloodType": "AB",
+    "jenis_kelamin": "Laki-laki",
+    "isRelawan": true,
+    "ktp_file": "",
+    "blood_card_file": "",
+    "foto": "",
+    "status": false,
+    "createdAt": "2021-07-25T13:28:59.748721",
+    "updatedTime": "2021-07-25T13:28:59.748721"
+}

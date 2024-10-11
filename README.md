@@ -19,7 +19,13 @@ samples, guidance on mobile development, and a full API reference.
 
 1. privasi desain sistem
 2. tampilan login pendonor 
-3. akun pendonor samma 
+3. akun pendonor sama 
 4. help
 5. siddak
+
+
+fadillah
+1. melamar krja dpt token buat di bawa 
+2. pencari kerja 
+3. 
 
